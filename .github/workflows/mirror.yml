@@ -1,0 +1,34 @@
+name: Mirror to Gogs and Gitverse
+
+on:
+  push:
+    branches:
+      - '*' 
+    tags:
+      - '*' 
+
+jobs:
+  mirror:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Push to Gogs
+        env:
+          GOGS_URL: ${{ secrets.GOGS_URL }}
+          TOKEN: ${{ secrets.GOGS_TOKEN }}
+        run: |
+          git remote add gogs "https://${TOKEN}@${GOGS_URL#https://}"
+          git push gogs --mirror --force
+
+      - name: Push to Gitverse
+        env:
+          GITVERSE_URL: ${{ secrets.GITVERSE_URL }}
+          TOKEN: ${{ secrets.GITVERSE_TOKEN }}
+        run: |
+          git remote add gitverse "https://${TOKEN}@${GITVERSE_URL#https://}"
+          git push gitverse --mirror --force
